@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/images/hub-logo-animated.gif" alt="Math 9 Learning Hub logo" width="120"></p>
+<p align="center"><img src="hub-logo-animated.gif" alt="Math 9 Learning Hub logo" width="120"></p>
 
 # Math 9 Learning Hub
 
@@ -31,52 +31,45 @@ Maintained by **Jomar B. Siarez**, Teacher I, Mathematics 9.
 
 ## Weekly update (teacher checklist)
 
-1. Open **`js/config.js`** and change:
+1. Open **`config.js`** and change:
    - `currentWeek` to the week your classes are on;
    - `lastUpdated` to today's date.
    The home page, the **This week / Next week** links, and the week map all follow this setting.
-2. If lesson dates change, edit `dates` near the top of that week's file in **`lessons/`** (for example, `lessons/week08.js`).
-3. To add a new week's full lessons, edit its file in `lessons/` and set `status: "ready"`.
-4. Rebuild the offline copy: `python tools/build-offline.py` (or ask for an updated `offline/math9-hub-offline.html`).
-5. Upload the changed files to GitHub (**Add file → Upload files**, keep the same folder names).
+2. If lesson dates change, edit `dates` near the top of that week's file (for example, `week08.js`).
+3. To add a new week's full lessons, edit its file (for example, `week08.js`) and set `status: "ready"`.
+4. Rebuild the offline copy: `python build-offline.py` (or ask for an updated `math9-hub-offline.html`).
+5. Upload the changed files to GitHub (**Add file → Upload files**). Files with the same name are replaced.
 
-## Folder structure
+## Files
 
-```
-Math9-LearningHub/
-├── index.html                 Page shell: header, skip link, script list
-├── README.md                  This file
-├── css/
-│   └── styles.css             All styles (light and dark mode)
-├── js/
-│   ├── config.js              SITE SETTINGS: current week, school year, last updated
-│   ├── helpers.js             Shared helpers: tables of values, concept tables, proofs, video entries
-│   ├── figures.js             Diagrams and interactive graphs (SVG)
-│   ├── progress.js            Saving on this device; "Clear my progress"
-│   ├── activities.js          Lessons, practice, Check, reflection, sorting tasks
-│   ├── navigation.js          This week / Next week links, week map, page routing
-│   └── app.js                 Home and week pages; start-up
-├── lessons/
-│   ├── week01.js … week10.js  One file per week (lessons, practice, Check, reflection question)
-├── assets/
-│   ├── images/                Siay NHS seal, hub icon, animated logo
-│   └── videos/                Teacher-made videos (see the note inside)
-├── offline/
-│   └── math9-hub-offline.html One-file copy that works without internet
-└── tools/
-    └── build-offline.py       Rebuilds the offline copy
-```
+All files sit together at the top level of the repository, so they can be uploaded with GitHub's **Upload files** button in one step.
+
+| File | What it is |
+| --- | --- |
+| `index.html` | Page shell: header, skip link, list of scripts |
+| `config.js` | **Site settings:** current week, school year, last updated |
+| `week01.js` … `week10.js` | One lesson file per week |
+| `styles.css` | All styles (light and dark mode) |
+| `helpers.js` | Shared helpers: tables of values, concept tables, proofs, video entries |
+| `figures.js` | Diagrams and interactive graphs |
+| `progress.js` | Saving on this device; "Clear my progress" |
+| `activities.js` | Lessons, practice, Check, reflection, sorting tasks |
+| `navigation.js` | This week / Next week links, week map, page routing |
+| `app.js` | Home and week pages; start-up |
+| `siay-nhs-logo.png`, `hub-icon-*.png`, `hub-logo-animated.gif` | Images |
+| `math9-hub-offline.html` | One-file copy that works without internet |
+| `build-offline.py` | Rebuilds the offline copy |
 
 ## Writing a lesson
 
-Each lesson in `lessons/weekNN.js` has:
+Each lesson in `weekNN.js` has:
 
 | Field | What it holds |
 | --- | --- |
 | `id`, `title` | Lesson number and title, e.g. `"7.1"` |
 | `key` | The key idea in one or two sentences |
 | `points` | Explanation paragraphs; may include `tov(...)` tables of values, `ctable(...)` concept tables, and `proof(...)` two-column proofs |
-| `figure` | Name of a diagram or interactive in `js/figures.js` (or `"sorter"`) |
+| `figure` | Name of a diagram or interactive in `figures.js` (or `"sorter"`) |
 | `example` | A worked example: question and numbered steps |
 | `videos` | Supplementary videos: `[vid("Title", "https://…", "Source")]`. Leave out if there is none; the page then says so plainly |
 

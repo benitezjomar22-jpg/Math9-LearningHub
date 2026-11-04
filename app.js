@@ -27,7 +27,7 @@ function homeView() {
   return `<section class="view" aria-labelledby="home-h">
     <div class="banner greenband">
       <div class="banner-row">
-        <img class="seal" src="assets/images/siay-nhs-logo.png" alt="Seal of Siay National High School" width="104" height="104">
+        <img class="seal" src="siay-nhs-logo.png" alt="Seal of Siay National High School" width="104" height="104">
         <div class="banner-text">
           <span class="eyebrow">${SITE.school} · Grade 9 Mathematics</span>
           <h1 id="home-h">Math 9 <span class="gold-text">Learning Hub</span></h1>
@@ -53,7 +53,7 @@ function homeView() {
     ${progressPanelHTML()}
     ${window.OFFLINE_BUILD ? "" : `<section class="panel offline" aria-labelledby="off-h">
       <div class="panel-head"><div><span class="eyebrow">No internet at home?</span><h2 id="off-h">Use the hub offline</h2></div>
-        <a class="btn primary" href="offline/math9-hub-offline.html" download="Math9-Learning-Hub.html">Download offline copy</a></div>
+        <a class="btn primary" href="math9-hub-offline.html" download="Math9-Learning-Hub.html">Download offline copy</a></div>
       <p>Download one file while you have data or Wi-Fi. Open it later from your phone's <b>Files → Downloads</b> using Chrome. It works without internet. Download it again after your teacher adds new lessons.</p>
     </section>`}
     <section class="weeks" aria-labelledby="all-h">
