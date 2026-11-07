@@ -414,6 +414,21 @@ ul.plain{display:flex;flex-direction:column;gap:6px}
 @keyframes ctrpulse{50%{transform:scale(2)}}
 @media (prefers-reduced-motion:reduce){.fig .pt.pulse{animation:none}}
 
+/* "New here? How to use the hub" panel */
+.howto{gap:0;border:2px solid var(--gold);background:color-mix(in srgb,var(--gold) 7%,var(--sheet))}
+.howto summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary .eyebrow{color:var(--red);font-weight:600}
+.howto-title{font-family:var(--f-display);font-weight:800;font-size:1.3rem}
+.howto-hint::after{content:"Show the steps ▾";font-size:.85rem;font-weight:700;color:var(--accent);margin-left:auto}
+.howto[open] .howto-hint::after{content:"Hide ▴"}
+.howto summary:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:4px}
+.howto-body{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.howto-steps{margin:0;padding:0;list-style:none;counter-reset:h;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.howto-steps li{counter-increment:h;position:relative;padding:10px 12px 10px 52px;background:var(--sheet);border:1px solid var(--line);border-radius:10px;margin:0}
+.howto-steps li::before{content:counter(h);position:absolute;left:12px;top:10px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:var(--on-accent);font-family:var(--f-display);font-weight:800}
+.howto-tips{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-size:.95rem}
+
 </style>
 </head>
 <body>
@@ -457,7 +472,7 @@ window.SITE = {
   currentWeek: "auto",
   lastUpdated: "November 7, 2026",
   teacher: "Jomar B. Siarez",
-  version: "1.3",
+  version: "1.4",
   // First and last class day of each week (year-month-day).
   schedule: {
     2: ["2026-09-24", "2026-09-30"],
@@ -3212,6 +3227,7 @@ function route() {
   app.innerHTML = n && findWeek(n) ? weekView(n) : homeView();
   $$("[data-explore]").forEach(drawExplore);
   initIX(app);
+  if (typeof initHowTo === "function") initHowTo();
   const cw = SITE.cw;
   $$("#main-nav a").forEach(a => a.removeAttribute("aria-current"));
   const cur = n ? (n === cw ? "This week" : n === cw + 1 ? "Next week" : "") : "Home";
@@ -3264,6 +3280,7 @@ function homeView() {
       </div>
       ${factsHTML()}
     </div>
+    ${howToHTML(cw)}
     ${termMap()}
     ${cw ? `<section class="panel nextup ${cw.strand}" aria-labelledby="tw-h">
       <div class="panel-head"><div><span class="eyebrow">This week · Week ${cw.n} · ${weekDates(cw)}</span><h2 id="tw-h">${cw.title}</h2></div>
@@ -3338,6 +3355,44 @@ HUB.weeks.sort((a, b) => a.n - b.n);
 buildNav();
 $("#site-footer").innerHTML = footerHTML();
 route();
+
+// "New here?" panel on the home page. Open until the learner closes it once.
+function howToHTML(cw) {
+  let closed = false;
+  try { closed = localStorage.getItem("m9-howto") === "closed"; } catch (_) { }
+  const wk = cw ? `<b>Open Week ${cw.n}</b> below` : "the week you need under <b>All weeks</b>";
+  return `<details class="panel howto" id="howto"${closed ? "" : " open"}>
+    <summary><span class="eyebrow">New here?</span><span class="howto-title">How to use the hub</span><span class="howto-hint" aria-hidden="true"></span></summary>
+    <div class="howto-body">
+      <ol class="howto-steps">
+        <li><b>Find this week.</b> Tap <b>This week</b> in the top menu, or ${wk}. Missed a week? Scroll down to <b>All weeks</b>.</li>
+        <li><b>Study ahead</b> before class: refresh, learn the words to know, and try the warm-up.</li>
+        <li><b>Learn.</b> Read the key idea and the worked example. In every <b>Try it</b> box, move the sliders and tap the buttons.</li>
+        <li><b>Practice</b> from Easy to Average to Difficult. Answer first, then tap <b>Show solution</b>.</li>
+        <li><b>Check and reflect.</b> Answer the five-item Check, tap <b>Submit my answers</b>, then write your reflection.</li>
+      </ol>
+      <ul class="howto-tips">
+        <li><b>One tap next time:</b> in Chrome, tap <b>⋮</b> then <b>Add to Home screen</b>.</li>
+        <li><b>No internet at home?</b> Tap <b>Download offline copy</b> further down this page while you have data or Wi-Fi.</li>
+        <li><b>Shared phone?</b> Tap <b>Clear my progress</b> when you finish.</li>
+      </ul>
+      <div class="row howto-vids" data-howto-vids hidden>
+        <a class="btn primary" href="quick-start.mp4" target="_blank" rel="noopener" data-vid="quick-start.mp4">▶ Quick start (1 minute)</a>
+        <a class="btn" href="how-to-use-hub.mp4" target="_blank" rel="noopener" data-vid="how-to-use-hub.mp4">▶ Full guide (6 minutes)</a>
+      </div>
+    </div>
+  </details>`;
+}
+// Remember when the panel is closed; show the video buttons only when the videos are on the site.
+function initHowTo() {
+  const d = $("#howto"); if (!d) return;
+  d.addEventListener("toggle", () => { try { localStorage.setItem("m9-howto", d.open ? "open" : "closed"); } catch (_) { } });
+  const box = $("[data-howto-vids]", d);
+  if (!box || location.protocol === "file:" || window.OFFLINE_BUILD || !window.fetch) return;
+  $$("[data-vid]", box).forEach(a => {
+    fetch(a.dataset.vid, { method: "HEAD" }).then(r => { if (r.ok) { box.hidden = false; } else a.remove(); }).catch(() => a.remove());
+  });
+}
 
 </script>
 </body>
