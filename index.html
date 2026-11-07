@@ -472,7 +472,7 @@ window.SITE = {
   currentWeek: "auto",
   lastUpdated: "November 7, 2026",
   teacher: "Jomar B. Siarez",
-  version: "1.4",
+  version: "1.5",
   // First and last class day of each week (year-month-day).
   schedule: {
     2: ["2026-09-24", "2026-09-30"],
@@ -3340,7 +3340,7 @@ function footerHTML() {
   return `<div class="weave-strip" aria-hidden="true"></div>
     <p><b>Math 9 Learning Hub</b> · ${SITE.grade} ${SITE.subject} · ${SITE.school}, ${SITE.place} · S.Y. ${SITE.schoolYear}, ${SITE.term} · Version ${SITE.version}, last updated ${SITE.lastUpdated}.</p>
     <p>Lessons are adapted from the Term 2 lesson plans (LPTs) and slides prepared by Grade 9 Mathematics teachers. Maintained by ${SITE.teacher}.</p>
-    <p><b>Privacy.</b> There is no login, and this site has no database. Your answers, Check scores, self-ratings, and reflections are never sent to a server or to your teacher; they stay in this browser on this device until you clear them. Opening the site makes ordinary web requests (to the website host and to Google Fonts for the lettering), the same as visiting any web page. Supplementary video links open Khan Academy or YouTube, which have their own privacy policies.</p>`;
+    <p><b>Privacy.</b> There is no login, and this site has no database. Your answers, Check scores, self-ratings, and reflections are never sent to a server or to your teacher; they stay in this browser on this device until you clear them. Opening the site makes ordinary web requests (to the website host and to Google Fonts for the lettering), the same as visiting any web page. The site also keeps an anonymous visit count with GoatCounter: which pages are opened and which activities are used (for example, "a Check was submitted"). It uses no cookies and records no names, answers, or scores. The offline copy counts nothing. Supplementary video links open Khan Academy or YouTube, which have their own privacy policies.</p>`;
 }
 
 // "Skip to main content" moves focus without changing the page address.
@@ -3393,6 +3393,49 @@ function initHowTo() {
     fetch(a.dataset.vid, { method: "HEAD" }).then(r => { if (r.ok) { box.hidden = false; } else a.remove(); }).catch(() => a.remove());
   });
 }
+
+</script>
+<script>
+// Anonymous visit counts (GoatCounter): no cookies, no names, no answers or scores.
+// Runs only on the live site, never in the offline copy.
+(function () {
+  if (!/\.github\.io$/.test(location.hostname) || window.OFFLINE_BUILD) return;
+  window.goatcounter = { no_onload: true };
+  const s = document.createElement("script");
+  s.async = true; s.src = "https://gc.zgo.at/count.js";
+  s.dataset.goatcounter = "https://math9hub.goatcounter.com/count";
+  document.head.appendChild(s);
+  const queue = [];
+  const send = (path, title, event) => {
+    const go = () => window.goatcounter.count({ path, title, event: !!event });
+    if (window.goatcounter && window.goatcounter.count) go(); else queue.push(go);
+  };
+  s.onload = () => { while (queue.length) queue.shift()(); };
+  const page = () => { const m = location.hash.match(/^#week-(\d+)$/); return m ? "week-" + m[1] : "home"; };
+  const seen = new Set();
+  const once = key => { if (seen.has(key)) return false; seen.add(key); return true; };
+  // page views (the site uses #hash pages)
+  const view = () => send("/" + page(), page() === "home" ? "Home" : "Week " + page().slice(5));
+  window.addEventListener("hashchange", view); view();
+  // actions that show real learning (each counted once per visit)
+  const ev = (name, key = name) => { if (once(page() + ":" + key)) send(page() + "/" + name, name, true); };
+  document.addEventListener("input", e => { const b = e.target.closest("[data-ix]"); if (b) ev("try-it-used", "ix:" + b.id); }, true);
+  document.addEventListener("click", e => {
+    const t = e.target.closest("button, a, label, input"); if (!t) return;
+    const b = t.closest("[data-ix]"); if (b) ev("try-it-used", "ix:" + b.id);
+    if (t.matches("[data-show]")) ev("show-solution");
+    if (t.matches("a[download]")) ev("offline-download");
+    if (t.matches("[data-vid]")) ev("video-" + t.dataset.vid.replace(".mp4", ""));
+    if (t.matches("[data-copy-reflect]")) ev("reflection-copied");
+  }, true);
+  document.addEventListener("submit", e => {
+    const f = e.target;
+    if (f.matches("[data-check]")) ev("check-submitted");
+    else if (f.matches("[data-reflect]")) ev("reflection-saved");
+    else if (f.matches("[data-prac]")) ev("practice-answered");
+    else if (f.matches("[data-warm]")) ev("warm-up-answered");
+  }, true);
+})();
 
 </script>
 </body>
